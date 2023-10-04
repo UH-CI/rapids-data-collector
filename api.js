@@ -45,7 +45,7 @@ const app = express();
 //   }
 // });
 app.listen(config.port, () => {
-    console.log(`Server listening on port ${port}`);
+    console.log(`Server listening on port ${config.port}`);
 });
 
 app.post("/upload", upload.single("file"), async (req, res) => {
