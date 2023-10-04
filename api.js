@@ -51,6 +51,7 @@ app.listen(config.port, () => {
 app.post("/upload", upload.single("file"), async (req, res) => {
     const { uuid, email, lat, lng, description } = req.body;
     const originalFname = req.file.originalname;
+    const timestamp = new Date().toISOString();
 
     try {
         const clamscan = await ClamScan;
@@ -80,7 +81,8 @@ app.post("/upload", upload.single("file"), async (req, res) => {
         email,
         lat,
         lng,
-        description
+        description,
+        timestamp
     });
     res.sendStatus(200);
 })
