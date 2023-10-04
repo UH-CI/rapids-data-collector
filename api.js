@@ -54,9 +54,11 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 
     try {
         const clamscan = await ClamScan;
-
-        const {isInfected, file, viruses} = await clamscan.isInfected(path.join(config.storage, uuid));
-        if (isInfected) {
+        let fpath = path.join(config.storage, uuid);
+        console.log(fpath);
+        const {isInfected, file, viruses} = await clamscan.isInfected(fpath);
+        console.log(isInfected);
+        if(isInfected) {
             //anything else?
             console.log(`${file} is infected with ${viruses}!`);
             return res.status(415)
