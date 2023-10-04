@@ -35,6 +35,15 @@ const upload = multer({ storage: storage });
 
 const port = 3000;
 const app = express();
+// const server = https.createServer(options, app)
+// .listen(port, (err) => {
+//   if(err) {
+//     console.error(error);
+//   }
+//   else {
+//     console.log("Server listening at port " + port);
+//   }
+// });
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
 });
