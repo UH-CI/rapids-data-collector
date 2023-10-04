@@ -5,6 +5,7 @@ const config = require("./config.json");
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { JWT } = require('google-auth-library');
 const NodeClam = require('clamscan');
+const path = require('path');
 
 const ClamScan = new NodeClam().init();
 
@@ -54,7 +55,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     try {
         const clamscan = await ClamScan;
 
-        const {isInfected, file, viruses} = await clamscan.isInfected(`uploads/${uuid}`);
+        const {isInfected, file, viruses} = await clamscan.isInfected(path.join(config.storage, uuid));
         if (isInfected) {
             //anything else?
             console.log(`${file} is infected with ${viruses}!`);
