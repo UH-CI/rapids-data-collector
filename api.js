@@ -22,7 +22,7 @@ const doc = new GoogleSpreadsheet(config.sheet_id, serviceAccountAuth);
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/');
+        cb(null, config.storage);
     },
     filename: (req, file, cb) => {
         const uuid = uuidv4();
