@@ -7,7 +7,7 @@ const { JWT } = require('google-auth-library');
 const NodeClam = require('clamscan');
 const path = require('path');
 
-const ClamScan = new NodeClam().init();
+const ClamScan = new NodeClam().init({debug_mode: true});
 
 const serviceAccountAuth = new JWT({
     email: config.client_email,
