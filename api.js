@@ -8,8 +8,7 @@ const NodeClam = require('clamscan');
 const path = require('path');
 
 const ClamScan = new NodeClam().init({
-    removeInfected: true,
-    debugMode: true
+    removeInfected: true
 });
 
 const serviceAccountAuth = new JWT({
@@ -59,12 +58,10 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     try {
         const clamscan = await ClamScan;
         let fpath = path.join(config.storage, uuid);
-        console.log(fpath);
         const {isInfected, file, viruses} = await clamscan.isInfected(fpath);
-        console.log(isInfected);
         if(isInfected) {
             //anything else?
-            console.log(`${file} is infected with ${viruses}!`);
+            console.log(`${file} is infected with ${viruses}! The file has been removed.`);
             return res.status(415)
             .send(
                 "The uploaded file was infected and could not be processed"
