@@ -25,10 +25,16 @@
         </form>
 
         <script>
-            let map = L.map("map").setView([20.559, -157.242], 8);
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            let southWest = L.latLng(20.805385510716093, -156.73919677734378);
+            let northEast = L.latLng(20.933704959327144, -156.60186767578128);
+            let bounds = L.latLngBounds(southWest, northEast);
+            let map = L.map("map", {
+                maxBounds: bounds,
+                minZoom: 13,
+                maxZoom: 20
+            }).setView([20.871593978421544, -156.6777849197388], 18);
+            L.tileLayer("http://www.google.com/maps/vt?lyrs=y@189&gl=en&x={x}&y={y}&z={z}", {
+                maxZoom: 20
             }).addTo(map);
             map.on("click", (e) => {
                 let {lat, lng} = e.latlng;
