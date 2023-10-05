@@ -7,6 +7,8 @@ const { JWT } = require('google-auth-library');
 const NodeClam = require('clamscan');
 const path = require('path');
 
+process.env["NODE_ENV"] = "production";
+
 const ClamScan = new NodeClam().init({
     removeInfected: true
 });
@@ -18,10 +20,7 @@ const serviceAccountAuth = new JWT({
 });
 
 const doc = new GoogleSpreadsheet(config.sheet_id, serviceAccountAuth);
-
-
-// process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
-// process.env["NODE_ENV"] = "production";
+const docLoaded = doc.loadInfo();
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -37,15 +36,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 const app = express();
-// const server = https.createServer(options, app)
-// .listen(port, (err) => {
-//   if(err) {
-//     console.error(error);
-//   }
-//   else {
-//     console.log("Server listening at port " + port);
-//   }
-// });
+
 app.listen(config.port, () => {
     console.log(`Server listening on port ${config.port}`);
 });
@@ -73,7 +64,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
         console.error(`Failed to scan uploaded file. Virus scan failed with error: ${err}`);
     }
 
-    await doc.loadInfo();
+    await docLoaded;
     const sheet = doc.sheetsByIndex[0];
     sheet.addRow({
         uuid,
