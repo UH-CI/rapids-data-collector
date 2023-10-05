@@ -43,7 +43,20 @@ app.listen(config.port, () => {
 
 app.post("/upload", upload.single("file"), async (req, res) => {
     const { uuid, email, lat, lng, description } = req.body;
-    const originalFname = req.file.originalname;
+    const originalFname = req.file?.originalname;
+
+    if(email === undefined || lat === undefined || lng === undefined || description === undefined || originalFname === undefined) {
+        return res.status(400)
+        .send(
+            `Request body must include the following data:
+            file: The file to upload.
+            email: Email address of the user uploading the file.
+            description: A description of the file.
+            lat: The latitude of the image.
+            lng: The longitude of the image`
+        );
+    }
+
     const timestamp = new Date().toISOString();
 
     try {
