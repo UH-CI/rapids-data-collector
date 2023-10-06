@@ -29,7 +29,7 @@ function formSubmit(event) {
     event.preventDefault();
 
     grecaptcha.ready(function() {
-        grecaptcha.execute("token", {action: "submit"}).then((token) => {
+        grecaptcha.execute("captcha_token", {action: "submit"}).then((token) => {
             message.innerHTML = "<hr> <h3>Your file is uploading...</h3>"
             let url = "http://149.165.154.247/upload";
             let request = new XMLHttpRequest();
@@ -42,12 +42,7 @@ function formSubmit(event) {
             request.onerror = () => {
                 message.innerHTML = "<hr> <h3>An error occurred uploading your file. Please try a different file or try again later. If this error persists please contact the site administrators at hcdp@hawaii.edu.</h3>"
             };
-
             let formData = new FormData(form);
-            for(let [key, value] of formData.entries()) { 
-                console.log(key, value);
-            }
-            
             request.send(formData);
             form.reset();
         });

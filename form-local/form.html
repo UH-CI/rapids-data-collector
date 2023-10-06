@@ -9,8 +9,8 @@
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
             crossorigin="">
         </script>
-        <link rel="stylesheet" href="test_api.css">
-        <script src="https://www.google.com/recaptcha/api.js?render=token"></script>
+        <link rel="stylesheet" href="form.css">
+        <script src="https://www.google.com/recaptcha/api.js?render=captcha_token"></script>
     </head>
     <body>
         <div class="header">
@@ -34,13 +34,6 @@
                     </h4>
                     <textarea id="description" type="text" name="description" required></textarea>
                 </div>
-                <div class="form-input file-upload">
-                    <h4>
-                        File
-                    </h4>
-                    <input type="file" name="file" accept="image/*, video/*" required>
-                </div>
-                
                 
                 <div class="form-input">
                     <div class="inline-input">
@@ -60,12 +53,20 @@
                     </h4>
                     <div id="map"></div>
                 </div>
+
+                <div class="form-input file-upload">
+                    <h4>
+                        File
+                    </h4>
+                    <input type="file" name="file" accept="image/*, video/*" required>
+                </div>
+
                 <button type="submit">Upload</button>
             </form>
     
             <div id="submitMessage"></div>
         </div>
         
-        <script src="test_api.js"></script>
+        <script src="form.js"></script>
     </body>
 </html>

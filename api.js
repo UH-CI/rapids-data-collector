@@ -57,7 +57,6 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     const originalFname = req.file?.originalname;
 
     if(email === undefined || lat === undefined || lng === undefined || description === undefined || originalFname === undefined) {
-        console.log(req.file, email, lat, lng, description, req, req.body);
         return res.status(400)
         .send(
             `Request body must include the following data:
