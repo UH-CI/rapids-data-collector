@@ -10,6 +10,7 @@
             crossorigin="">
         </script>
         <link rel="stylesheet" href="test_api.css">
+        <script src="https://www.google.com/recaptcha/api.js?render=token"></script>
     </head>
     <body>
         <div class="header">
@@ -20,12 +21,7 @@
         
         <div class="form">
             <form id="form" enctype="multipart/form-data">
-                <div class="form-input file-upload">
-                    <h4>
-                        File
-                    </h4>
-                    <input type="file" name="file" accept="image/*, video/*" required>
-                </div>
+                
                 <div class="form-input">
                     <h4>
                         Email
@@ -37,6 +33,12 @@
                         Description
                     </h4>
                     <textarea id="description" type="text" name="description" required></textarea>
+                </div>
+                <div class="form-input file-upload">
+                    <h4>
+                        File
+                    </h4>
+                    <input type="file" name="file" accept="image/*, video/*" required>
                 </div>
                 
                 
@@ -58,7 +60,6 @@
                     </h4>
                     <div id="map"></div>
                 </div>
-                
                 <button type="submit">Upload</button>
             </form>
     

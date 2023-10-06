@@ -1,5 +1,6 @@
 const multer = require("multer");
 const express = require("express");
+const compression = require("compression");
 const { v4: uuidv4 } = require("uuid");
 const config = require("./config.json");
 const { GoogleSpreadsheet } = require('google-spreadsheet');
@@ -39,6 +40,16 @@ const app = express();
 
 app.listen(config.port, () => {
     console.log(`Server listening on port ${config.port}`);
+});
+
+//compress all HTTP responses
+app.use(compression());
+
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST");
+  //pass to next layer
+  next();
 });
 
 app.post("/upload", upload.single("file"), async (req, res) => {
