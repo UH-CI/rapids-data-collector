@@ -1,12 +1,13 @@
 const multer = require("multer");
 const express = require("express");
 const compression = require("compression");
-const { v4: uuidv4 } = require("uuid");
 const config = require("./config.json");
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { JWT } = require('google-auth-library');
 const NodeClam = require('clamscan');
 const path = require('path');
+const exif = require("exiftool");
+const fs = require("fs");
 
 process.env["NODE_ENV"] = "production";
 
@@ -28,9 +29,16 @@ const storage = multer.diskStorage({
         cb(null, config.storage);
     },
     filename: (req, file, cb) => {
-        const uuid = uuidv4();
-        req.body.uuid = uuid;
-        cb(null, uuid);
+        const id = Date.now();
+        let ext = "";
+        if(file?.originalname) {
+            ext = path.extname(file.originalname)
+        }
+        const fname = `${id}${ext}`;
+        req.body.id = id;
+        req.body.ext = ext;
+        req.body.fname = fname;
+        cb(null, fname);
     }
 });
 
@@ -53,7 +61,7 @@ app.use((req, res, next) => {
 });
 
 app.post("/upload", upload.single("file"), async (req, res) => {
-    const { uuid, email, lat, lng, description } = req.body;
+    const { id, ext, fname, email, lat, lng, description, userTimestamp } = req.body;
     const originalFname = req.file?.originalname;
 
     if(email === undefined || lat === undefined || lng === undefined || description === undefined || originalFname === undefined) {
@@ -68,11 +76,11 @@ app.post("/upload", upload.single("file"), async (req, res) => {
         );
     }
 
-    const timestamp = new Date().toISOString();
-
+    const uploadTimestamp = new Date().toISOString();
+    let fpath = path.join(config.storage, fname);
     try {
         const clamscan = await ClamScan;
-        let fpath = path.join(config.storage, uuid);
+        
         const {isInfected, file, viruses} = await clamscan.isInfected(fpath);
         if(isInfected) {
             //anything else?
@@ -84,20 +92,46 @@ app.post("/upload", upload.single("file"), async (req, res) => {
         }
     }
     //if there was an error scanning the file just accept it
-    catch (err) {
-        console.error(`Failed to scan uploaded file. Virus scan failed with error: ${err}`);
+    catch(err) {
+        console.error(`Failed to scan uploaded file ${fpath}. Virus scan failed with error: ${err}`);
     }
+
+    let metadata = "{}";
+    try {
+        const imgbuffer = await fs.promises.readFile(fpath);
+        exif.metadata(imgbuffer, (err, metadata) => {
+            if(err) {
+                console.error(`Failed to get exif data from ${fpath}. Failed with error: ${err}`);
+            }
+            else {
+                //parse metadata to standard json object, stored in strange format that cannot be stringified
+                let metadataObj = {}
+                for(let tag in metadata) {
+                    metadataObj[tag] = metadata[tag];
+                }
+                metadata = JSON.stringify(metadataObj);
+            }
+        });
+    }
+    catch(err) {
+        console.error(`Failed to load file ${fpath} and get exif data. Failed with error: ${err}`);
+    }
+    
 
     await docLoaded;
     const sheet = doc.sheetsByIndex[0];
     sheet.addRow({
-        uuid,
+        id,
+        ext,
+        fname,
         originalFname,
         email,
         lat,
         lng,
         description,
-        timestamp
+        userTimestamp,
+        uploadTimestamp,
+        metadata
     });
     res.sendStatus(200);
-})
+});
