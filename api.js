@@ -60,6 +60,15 @@ app.use((req, res, next) => {
   next();
 });
 
+function getHawaiiISOTimestamp() {
+    let timestamp = new Date();
+    //subtract 10 hours so utc converted time will be in hawaii timezone
+    timestamp.setHours(timestamp.getHours() - 10);
+    //remove Z from iso string and replace with tz offset
+    timestampString = timestamp.toISOString().slice(0, -1) + "-10:00";
+    return timestampString;
+}
+
 app.post("/upload", upload.single("file"), async (req, res) => {
     const { id, ext, fname, email, lat, lng, description, userTimestamp } = req.body;
     const originalFname = req.file?.originalname;
@@ -76,7 +85,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
         );
     }
 
-    const uploadTimestamp = new Date().toISOString();
+    const uploadTimestamp = getHawaiiISOTimestamp();
     let fpath = path.join(config.storage, fname);
     try {
         const clamscan = await ClamScan;

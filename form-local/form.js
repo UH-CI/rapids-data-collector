@@ -25,28 +25,49 @@ const form = document.getElementById("form");
 form.addEventListener("submit", formSubmit);
 const message = document.getElementById("submitMessage");
 
+function convertTimestamp(formData) {
+    let timestamp = new Date(formData.get("userTimestamp"));
+    //subtract 10 hours so utc converted time will be in hawaii timezone
+    timestamp.setHours(timestamp.getHours() - 10);
+    //remove Z from iso string and replace with tz offset
+    timestampString = timestamp.toISOString().slice(0, -1) + "-10:00";
+    //replace timestamp
+    formData.set("userTimestamp", timestampString);
+}
+
 function formSubmit(event) {
     event.preventDefault();
 
-    grecaptcha.ready(function() {
-        grecaptcha.execute("captcha_token", {action: "submit"}).then((token) => {
-            message.innerHTML = "<hr> <h3>Your file is uploading...</h3>"
-            let url = "http://149.165.154.247/upload";
-            let request = new XMLHttpRequest();
-            request.open("POST", url, true);
-            // request.setRequestHeader("Content-Type", "multipart/form-data");
-            request.onload = () => {
-                message.innerHTML = "<hr> <h3>Your file was successfully submitted. Thank you for your contribution!</h3>"
-            };
+    let formData = new FormData(form);
+    for(pair of formData.entries()) {
+        console.log(pair);
+        console.log(formData.get("userTimestamp"))
+    }
+    let timestamp = new Date(formData.get("userTimestamp"));
+    timestamp.setHours(timestamp.getHours() - 10);
+    timestampString = timestamp.toISOString().slice(0, -1) + "-10:00";
+    formData.set("userTimestamp", timestampString);
+    console.log(new Date(formData.get("userTimestamp")));
 
-            request.onerror = () => {
-                message.innerHTML = "<hr> <h3>An error occurred uploading your file. Please try a different file or try again later. If this error persists please contact the site administrators at hcdp@hawaii.edu.</h3>"
-            };
-            let formData = new FormData(form);
-            request.send(formData);
-            form.reset();
-        });
-    });
+    // grecaptcha.ready(function() {
+    //     grecaptcha.execute("captcha_token", {action: "submit"}).then((token) => {
+    //         message.innerHTML = "<hr> <h3>Your file is uploading...</h3>"
+    //         let url = "http://149.165.154.247/upload";
+    //         let request = new XMLHttpRequest();
+    //         request.open("POST", url, true);
+    //         // request.setRequestHeader("Content-Type", "multipart/form-data");
+    //         request.onload = () => {
+    //             message.innerHTML = "<hr> <h3>Your file was successfully submitted. Thank you for your contribution!</h3>"
+    //         };
+
+    //         request.onerror = () => {
+    //             message.innerHTML = "<hr> <h3>An error occurred uploading your file. Please try a different file or try again later. If this error persists please contact the site administrators at hcdp@hawaii.edu.</h3>"
+    //         };
+    //         let formData = new FormData(form);
+    //         request.send(formData);
+    //         form.reset();
+    //     });
+    // });
     
 }
 
