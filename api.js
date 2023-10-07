@@ -99,22 +99,24 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     let metadata = "{}";
     try {
         const imgbuffer = await fs.promises.readFile(fpath);
-        exif.metadata(imgbuffer, (err, metadata) => {
-            if(err) {
-                console.error(`Failed to get exif data from ${fpath}. Failed with error: ${err}`);
-            }
-            else {
-                //parse metadata to standard json object, stored in strange format that cannot be stringified
-                let metadataObj = {}
-                for(let tag in metadata) {
-                    metadataObj[tag] = metadata[tag];
+        metadata = await new Promise((resolve, reject) => {
+            exif.metadata(imgbuffer, (err, metadata) => {
+                if(err) {
+                    reject(err)
                 }
-                metadata = JSON.stringify(metadataObj);
-            }
+                else {
+                    //parse metadata to standard json object, stored in strange format that cannot be stringified
+                    let metadataObj = {}
+                    for(let tag in metadata) {
+                        metadataObj[tag] = metadata[tag];
+                    }
+                    resolve(JSON.stringify(metadataObj));
+                }
+            });
         });
     }
     catch(err) {
-        console.error(`Failed to load file ${fpath} and get exif data. Failed with error: ${err}`);
+        console.error(`Failed to get exif data for file ${fpath}. Failed with error: ${err}`);
     }
     
 
