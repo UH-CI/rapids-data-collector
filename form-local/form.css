@@ -32,12 +32,14 @@ body {
 button {
     background-color: #175db6;
     color: white;
-    width: 100px;
     height: 50px;
     border-radius: 8px;
     font-size: 20px;
     display: block;
     margin: 20px;
+    cursor: pointer;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 .file-upload {

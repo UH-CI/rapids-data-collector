@@ -73,18 +73,6 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     const { id, ext, fname, email, lat, lng, description, userTimestamp } = req.body;
     const originalFname = req.file?.originalname;
 
-    if(email === undefined || lat === undefined || lng === undefined || description === undefined || originalFname === undefined) {
-        return res.status(400)
-        .send(
-            `Request body must include the following data:
-            file: The file to upload.
-            email: Email address of the user uploading the file.
-            description: A description of the file.
-            lat: The latitude of the image.
-            lng: The longitude of the image`
-        );
-    }
-
     const uploadTimestamp = getHawaiiISOTimestamp();
     let fpath = path.join(config.storage, fname);
     try {
@@ -128,7 +116,6 @@ app.post("/upload", upload.single("file"), async (req, res) => {
         console.error(`Failed to get exif data for file ${fpath}. Failed with error: ${err}`);
     }
     
-
     await docLoaded;
     const sheet = doc.sheetsByIndex[0];
     sheet.addRow({

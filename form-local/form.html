@@ -11,6 +11,7 @@
         </script>
         <link rel="stylesheet" href="form.css">
         <script src="https://www.google.com/recaptcha/api.js?render=captcha_token"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     </head>
     <body>
         <div class="header">
@@ -19,7 +20,7 @@
             </h2>
         </div>
         
-        <div class="form">
+        <div id="form-wrapper" class="form">
             <form id="form" enctype="multipart/form-data">
                 <input type="datetime-local" id="file-datetime" name="userTimestamp">
                 <div class="form-input">
@@ -36,6 +37,8 @@
                 </div>
                 
                 <div class="form-input">
+                    <p style='color:#B00020'>We will try to pull date/time and location data from the file provided. Please attempt to provide this information to the best of your ability in case your file does not contain this information.</p>
+
                     <div class="inline-input">
                         <h4>
                             Latitude

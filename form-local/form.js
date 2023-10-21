@@ -35,19 +35,60 @@ function convertTimestamp(formData) {
     formData.set("userTimestamp", timestampString);
 }
 
+const formWrapper = document.getElementById("form-wrapper");
+const formWrapperChildren = [...formWrapper.childNodes];
+console.log(formWrapperChildren);
+
+function formReturn() {
+    formWrapper.innerHTML = "";
+    for(let child of formWrapperChildren) {
+        formWrapper.appendChild(child);
+    }
+    setTimeout(() => {
+        map.invalidateSize();
+    }, 0);
+}
+
+const formReturnButton = document.createElement("button");
+formReturnButton.addEventListener("click", formReturn);
+formReturnButton.innerHTML = "<i class='fa-solid fa-chevron-left' style='padding-right:10px;'></i>Return to Form"
+const submissionResponse = document.createElement("div");
+submissionResponse.style= "margin:20px;";
+
+"Please "
+
+function validate(formData) {
+    let valid = false;
+    for(pair of formData.entries()) {
+        if((pair[0] == "description" &&  pair[1] != "") || (pair[0] == "file" && pair[1].size > 0)) {
+            valid = true;
+        }
+    }
+    return valid;
+    "Please provide either a description or file to upload"
+}
+
 function formSubmit(event) {
     event.preventDefault();
 
     let formData = new FormData(form);
     for(pair of formData.entries()) {
         console.log(pair);
-        console.log(formData.get("userTimestamp"))
+        //console.log(formData.get("userTimestamp"))
     }
-    let timestamp = new Date(formData.get("userTimestamp"));
-    timestamp.setHours(timestamp.getHours() - 10);
-    timestampString = timestamp.toISOString().slice(0, -1) + "-10:00";
-    formData.set("userTimestamp", timestampString);
-    console.log(new Date(formData.get("userTimestamp")));
+    // let timestamp = new Date(formData.get("userTimestamp"));
+    // timestamp.setHours(timestamp.getHours() - 10);
+    // timestampString = timestamp.toISOString().slice(0, -1) + "-10:00";
+    // formData.set("userTimestamp", timestampString);
+    // console.log(new Date(formData.get("userTimestamp")));
+
+
+
+    const rText = "<p>Your file was successfully submitted. Thank you for your contribution!</p>";
+    submissionResponse.innerHTML = rText;
+    formWrapper.innerHTML = "";
+    formWrapper.appendChild(formReturnButton);
+    formWrapper.appendChild(submissionResponse);
 
     // grecaptcha.ready(function() {
     //     grecaptcha.execute("captcha_token", {action: "submit"}).then((token) => {
@@ -72,3 +113,10 @@ function formSubmit(event) {
 }
 
 
+
+
+
+
+
+
+form.addEventListener("submit", formSubmit);
