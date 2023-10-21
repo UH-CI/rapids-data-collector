@@ -60,13 +60,66 @@ app.use((req, res, next) => {
   next();
 });
 
-function getHawaiiISOTimestamp() {
-    let timestamp = new Date();
+function getHawaiiISOTimestamp(timestamp) {
+    if(!timestamp) {
+        timestamp = new Date();
+    }
+    
     //subtract 10 hours so utc converted time will be in hawaii timezone
     timestamp.setHours(timestamp.getHours() - 10);
     //remove Z from iso string and replace with tz offset
     timestampString = timestamp.toISOString().slice(0, -1) + "-10:00";
     return timestampString;
+}
+
+function gpsStrToCoord(gpsStr) {
+    coord = "";
+    let coordPattern = /([0-9]+)\s+deg\s+([0-9]+)'\s+([0-9]+(?:.[0-9]+)?)/;
+    let match = gpsStr.match(coordPattern);
+    if(match) {
+        let deg = Number(match[1]);
+        let min = Number(match[2]);
+        let sec = Number(match[3]);
+        latN = deg + (min / 60.0) + (sec / 3600.0);
+        coord = latN.toString();
+    }
+    return coord;
+}
+
+function exifDatetimeToHawaiiISOTimestamp(exifTimestamp) {
+    timestamp = "";
+    let datetimePattern = /([0-9]{4}):([0-9]{2}):([0-9]{2}) ([0-9]{2}):([0-9]{2}):([0-9]{2})(?:.[0-9]+)?((?:[-+][0-9]{2}:[0-9]{2})|Z)?/;
+    let match = exifTimestamp.match(datetimePattern);
+    if(match) {
+        let year = Number(match[1]);
+        let month = Number(match[2]);
+        let day = Number(match[3]);
+        let hour = Number(match[4]);
+        let min = Number(match[5]);
+        let sec = Number(match[6]);
+        let tz = Number(match[7]);
+        if(!tz) {
+            tz = "Z";
+        }
+        isoTimestamp = `${year}-${month}-${day}T${hour}:${min}:${sec}${tz}`;
+        timestamp = getHawaiiISOTimestamp(new Date(isoTimestamp));
+    }
+    return timestamp;
+}
+
+function parseMetadataFields(metadata) {
+    parsedMetadata = {};
+    let { gpsLatitude, gpsLongitude, createDate } = metadata;
+    if(gpsLatitude) {
+        parsedMetadata.fileLat = gpsStrToCoord(gpsLatitude);
+    }
+    if(gpsLongitude) {
+        parsedMetadata.fileLng = gpsStrToCoord(gpsLongitude);
+    }
+    if(createDate) {
+        parsedMetadata.fileTimestamp = exifDatetimeToHawaiiISOTimestamp(createDate);
+    }
+    return parsedMetadata;
 }
 
 app.post("/upload", upload.single("file"), async (req, res) => {
@@ -76,7 +129,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
         id = Date.now();
     }
     const uploadTimestamp = getHawaiiISOTimestamp();
-    let metadata = "{}";
+    let metadata = {};
     if(fname) {
         let fpath = path.join(config.storage, fname);
         try {
@@ -110,7 +163,8 @@ app.post("/upload", upload.single("file"), async (req, res) => {
                         for(let tag in metadata) {
                             metadataObj[tag] = metadata[tag];
                         }
-                        resolve(JSON.stringify(metadataObj));
+
+                        resolve(metadataObj);
                     }
                 });
             });
@@ -119,6 +173,9 @@ app.post("/upload", upload.single("file"), async (req, res) => {
             console.error(`Failed to get exif data for file ${fpath}. Failed with error: ${err}`);
         }
     }
+
+    let parsedFields = parseMetadataFields(metadata);
+    let { fileLat, fileLng, fileTimestamp } = parsedFields;
     
     await docLoaded;
     const sheet = doc.sheetsByIndex[0];
@@ -128,12 +185,15 @@ app.post("/upload", upload.single("file"), async (req, res) => {
         fname,
         originalFname,
         email,
-        lat,
-        lng,
+        userLat: lat,
+        userLng: lng,
+        fileLat,
+        fileLng,
         description,
         userTimestamp,
+        fileTimestamp,
         uploadTimestamp,
-        metadata
+        metadata: JSON.stringify(metadata)
     });
     res.sendStatus(200);
 });
