@@ -70,9 +70,11 @@ function getHawaiiISOTimestamp() {
 }
 
 app.post("/upload", upload.single("file"), async (req, res) => {
-    const { id, ext, fname, email, lat, lng, description, userTimestamp } = req.body;
+    let { id, ext, fname, email, lat, lng, description, userTimestamp } = req.body;
     const originalFname = req.file?.originalname;
-
+    if(id === undefined) {
+        id = Date.now();
+    }
     const uploadTimestamp = getHawaiiISOTimestamp();
     let metadata = "{}";
     if(fname) {
