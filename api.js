@@ -74,6 +74,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     const originalFname = req.file?.originalname;
 
     const uploadTimestamp = getHawaiiISOTimestamp();
+    let metadata = "{}";
     if(fname) {
         let fpath = path.join(config.storage, fname);
         try {
@@ -94,7 +95,6 @@ app.post("/upload", upload.single("file"), async (req, res) => {
             console.error(`Failed to scan uploaded file ${fpath}. Virus scan failed with error: ${err}`);
         }
     
-        let metadata = "{}";
         try {
             const imgbuffer = await fs.promises.readFile(fpath);
             metadata = await new Promise((resolve, reject) => {
