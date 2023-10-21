@@ -74,46 +74,48 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     const originalFname = req.file?.originalname;
 
     const uploadTimestamp = getHawaiiISOTimestamp();
-    let fpath = path.join(config.storage, fname);
-    try {
-        const clamscan = await ClamScan;
-        
-        const {isInfected, file, viruses} = await clamscan.isInfected(fpath);
-        if(isInfected) {
-            //anything else?
-            console.log(`${file} is infected with ${viruses}! The file has been removed.`);
-            return res.status(415)
-            .send(
-                "The uploaded file was infected and could not be processed"
-            );
+    if(fname) {
+        let fpath = path.join(config.storage, fname);
+        try {
+            const clamscan = await ClamScan;
+            
+            const {isInfected, file, viruses} = await clamscan.isInfected(fpath);
+            if(isInfected) {
+                //anything else?
+                console.log(`${file} is infected with ${viruses}! The file has been removed.`);
+                return res.status(415)
+                .send(
+                    "The uploaded file was infected and could not be processed"
+                );
+            }
         }
-    }
-    //if there was an error scanning the file just accept it
-    catch(err) {
-        console.error(`Failed to scan uploaded file ${fpath}. Virus scan failed with error: ${err}`);
-    }
-
-    let metadata = "{}";
-    try {
-        const imgbuffer = await fs.promises.readFile(fpath);
-        metadata = await new Promise((resolve, reject) => {
-            exif.metadata(imgbuffer, (err, metadata) => {
-                if(err) {
-                    reject(err)
-                }
-                else {
-                    //parse metadata to standard json object, stored in strange format that cannot be stringified
-                    let metadataObj = {}
-                    for(let tag in metadata) {
-                        metadataObj[tag] = metadata[tag];
+        //if there was an error scanning the file just accept it
+        catch(err) {
+            console.error(`Failed to scan uploaded file ${fpath}. Virus scan failed with error: ${err}`);
+        }
+    
+        let metadata = "{}";
+        try {
+            const imgbuffer = await fs.promises.readFile(fpath);
+            metadata = await new Promise((resolve, reject) => {
+                exif.metadata(imgbuffer, (err, metadata) => {
+                    if(err) {
+                        reject(err)
                     }
-                    resolve(JSON.stringify(metadataObj));
-                }
+                    else {
+                        //parse metadata to standard json object, stored in strange format that cannot be stringified
+                        let metadataObj = {}
+                        for(let tag in metadata) {
+                            metadataObj[tag] = metadata[tag];
+                        }
+                        resolve(JSON.stringify(metadataObj));
+                    }
+                });
             });
-        });
-    }
-    catch(err) {
-        console.error(`Failed to get exif data for file ${fpath}. Failed with error: ${err}`);
+        }
+        catch(err) {
+            console.error(`Failed to get exif data for file ${fpath}. Failed with error: ${err}`);
+        }
     }
     
     await docLoaded;
