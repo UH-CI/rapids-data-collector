@@ -102,6 +102,7 @@ function exifDatetimeToHawaiiISOTimestamp(exifTimestamp) {
             tz = "Z";
         }
         isoTimestamp = `${year}-${month}-${day}T${hour}:${min}:${sec}${tz}`;
+        console.log(isoTimestamp);
         timestamp = getHawaiiISOTimestamp(new Date(isoTimestamp));
     }
     return timestamp;
