@@ -91,13 +91,13 @@ function exifDatetimeToHawaiiISOTimestamp(exifTimestamp) {
     let datetimePattern = /([0-9]{4}):([0-9]{2}):([0-9]{2}) ([0-9]{2}):([0-9]{2}):([0-9]{2})(?:.[0-9]+)?((?:[-+][0-9]{2}:[0-9]{2})|Z)?/;
     let match = exifTimestamp.match(datetimePattern);
     if(match) {
-        let year = Number(match[1]);
-        let month = Number(match[2]);
-        let day = Number(match[3]);
-        let hour = Number(match[4]);
-        let min = Number(match[5]);
-        let sec = Number(match[6]);
-        let tz = Number(match[7]);
+        let year = match[1];
+        let month = match[2];
+        let day = match[3];
+        let hour = match[4];
+        let min = match[5];
+        let sec = match[6];
+        let tz = match[7];
         if(!tz) {
             tz = "Z";
         }
