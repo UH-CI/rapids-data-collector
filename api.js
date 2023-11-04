@@ -174,7 +174,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
             console.error(`Failed to get exif data for file ${fpath}. Failed with error: ${err}`);
         }
     }
-
+console.log(metadata);
     let parsedFields = parseMetadataFields(metadata);
     let { fileLat, fileLng, fileTimestamp } = parsedFields;
     
