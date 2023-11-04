@@ -61,14 +61,17 @@ app.use((req, res, next) => {
 });
 
 function getHawaiiISOTimestamp(timestamp) {
+    let timestampString = ""
     if(!timestamp) {
         timestamp = new Date();
     }
-    
-    //subtract 10 hours so utc converted time will be in hawaii timezone
-    timestamp.setHours(timestamp.getHours() - 10);
-    //remove Z from iso string and replace with tz offset
-    timestampString = timestamp.toISOString().slice(0, -1) + "-10:00";
+    //ensure date object is valid
+    if(!isNaN(timestamp)) {
+        //subtract 10 hours so utc converted time will be in hawaii timezone
+        timestamp.setHours(timestamp.getHours() - 10);
+        //remove Z from iso string and replace with tz offset
+        timestampString = timestamp.toISOString().slice(0, -1) + "-10:00";
+    }
     return timestampString;
 }
 
@@ -102,7 +105,6 @@ function exifDatetimeToHawaiiISOTimestamp(exifTimestamp) {
             tz = "Z";
         }
         isoTimestamp = `${year}-${month}-${day}T${hour}:${min}:${sec}${tz}`;
-        console.log(isoTimestamp);
         timestamp = getHawaiiISOTimestamp(new Date(isoTimestamp));
     }
     return timestamp;
@@ -174,7 +176,6 @@ app.post("/upload", upload.single("file"), async (req, res) => {
             console.error(`Failed to get exif data for file ${fpath}. Failed with error: ${err}`);
         }
     }
-console.log(metadata);
     let parsedFields = parseMetadataFields(metadata);
     let { fileLat, fileLng, fileTimestamp } = parsedFields;
     
