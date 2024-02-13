@@ -53,10 +53,10 @@ app.use(bodyParser.json({limit: "10gb"}));
 //compress all HTTP responses
 app.use(compression());
 
-app.listen(config.port, () => {
+const server = app.listen(config.port, () => {
     console.log(`Server listening on port ${config.port}`);
 });
-
+server.requestTimeout = 3000000
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
