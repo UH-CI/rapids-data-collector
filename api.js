@@ -8,6 +8,7 @@ const NodeClam = require('clamscan');
 const path = require('path');
 const exif = require("exiftool");
 const fs = require("fs");
+const bodyParser = require("body-parser");
 
 process.env["NODE_ENV"] = "production";
 
@@ -46,14 +47,16 @@ const upload = multer({ storage: storage });
 
 const app = express();
 
+//allow larger files
+app.use(bodyParser.json({limit: "10gb"}));
+
+//compress all HTTP responses
+app.use(compression());
+
 app.listen(config.port, () => {
     console.log(`Server listening on port ${config.port}`);
 });
 
-//compress all HTTP responses
-app.use(compression());
-//allow larger files
-app.use(express.limit("10gb"));
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
